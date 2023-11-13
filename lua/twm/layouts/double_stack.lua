@@ -35,6 +35,16 @@ function DoubleStackLayout.new(opts)
         end
     end
 
+    if opts.stack_selector == nil then
+        opts.stack_selector = function(layout)
+            if #layout.stack_left.stack <= #layout.stack_right.stack then
+                return layout.stack_left
+            else
+                return layout.stack_right
+            end
+        end
+    end
+
     return self
 end
 
@@ -118,15 +128,10 @@ function DoubleStackLayout:on_new_file(path)
         end
     end
 
-    local new_main_id = nil
     -- the new path is not open yet
-    if #self.stack_left.stack <= #self.stack_right.stack then
-        self.stack_left:new_win(path)
-        new_main_id = self.stack_left:swap(self.main)
-    else
-        self.stack_right:new_win(path)
-        new_main_id = self.stack_right:swap(self.main)
-    end
+    local stack = self.opts.stack_selector(self)
+    stack:new_win(path)
+    local new_main_id = stack:swap(self.main)
 
     self:set_width()
     self.main = new_main_id
