@@ -16,7 +16,9 @@ vim.api.nvim_create_user_command("TwmPromote", function()
         vim.cmd("TwmStart")
     else
         -- TODO actually if we get errors this is probably broke
-        pcall(require("user.commands.twm").promote)
+        -- pcall(require("user.commands.twm").promote)
+        -- dunnno something is super broke, nvim gets completly stuck on error
+        require("user.commands.twm").promote()
     end
 end, {})
 
