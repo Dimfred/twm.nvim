@@ -15,6 +15,7 @@ vim.api.nvim_create_user_command("TwmPromote", function()
     if not started then
         vim.cmd("TwmStart")
     else
+        -- TODO actually if we get errors this is probably broke
         pcall(require("user.commands.twm").promote)
     end
 end, {})
