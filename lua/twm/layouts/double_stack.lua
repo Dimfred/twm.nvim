@@ -12,6 +12,7 @@ local default_opts = {
         size = 2,
         width = 80,
     },
+    on_error = function() end,
 }
 
 function DoubleStackLayout.new(opts)
@@ -22,6 +23,7 @@ function DoubleStackLayout.new(opts)
     self.main = nil
 
     self.opts = opts or default_opts
+    self.on_error = opts.on_error
 
     if opts.filter == nil then
         opts.filter = function(window_id)
@@ -83,22 +85,30 @@ function DoubleStackLayout:init(opts)
 end
 
 function DoubleStackLayout:promote()
-    if not self.opts.filter(vim.api.nvim_get_current_win()) then
-        return
-    end
+    local promote_ = function()
+        if not self.opts.filter(vim.api.nvim_get_current_win()) then
+            return
+        end
 
-    local new_main_id = self.stack_left:swap(self.main)
-    if new_main_id ~= nil then
-        self.main = new_main_id
-    end
+        local new_main_id = self.stack_left:swap(self.main)
+        if new_main_id ~= nil then
+            self.main = new_main_id
+        end
 
-    new_main_id = self.stack_right:swap(self.main)
-    if new_main_id ~= nil then
-        self.main = new_main_id
-    end
+        new_main_id = self.stack_right:swap(self.main)
+        if new_main_id ~= nil then
+            self.main = new_main_id
+        end
 
-    self:set_width()
-    vim.api.nvim_set_current_win(self.main)
+        self:set_width()
+        vim.api.nvim_set_current_win(self.main)
+    end
+    local ok, _ = pcall(promote_)
+    vim.schedule(function()
+        if not ok then
+            self.on_error()
+        end
+    end)
 end
 
 function DoubleStackLayout:set_width()
