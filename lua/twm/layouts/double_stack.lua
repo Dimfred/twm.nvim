@@ -81,7 +81,9 @@ function DoubleStackLayout:init(opts)
     self:set_width()
 
     vim.api.nvim_set_current_win(self.main)
-    vim.api.nvim_feedkeys("zz", "n", false)
+    pcall(vim.api.nvim_win_call, self.main, function()
+        vim.cmd("normal! zz")
+    end)
 end
 
 function DoubleStackLayout:promote()
